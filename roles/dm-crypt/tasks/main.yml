@@ -8,33 +8,3 @@
 #     state: present
 #     update_cache: true
 #   tags: install
-
-# Discovery disks with partitions
-# I find disks with defined partitions, with lenth of partition variable more zero
-- name: "Discovery disks with partitions"
-  set_fact:
-    diskWithPartitions: "{{ ansible_facts.devices[item]['partitions'] }}"
-  when: ansible_facts.devices[item]['partitions'].keys() is defined and
-       ( ansible_facts.devices[item]['partitions'].keys() | length > 0 )
-  with_items: "{{ ansible_facts.devices.keys() }}"
-
-# Discovery disks without partitions
-# I find disks with defined partitions, with lenth of partition variable more zero and it not be loop device
-- name: "Discovery disks without partitions"
-  set_fact:
-    diskWithOutPartitions: "{{ item }}"
-  when: ansible_facts.devices[item]['partitions'].keys() is defined and
-       ( ansible_facts.devices[item]['partitions'].keys() | length == 0 ) and
-       ( item | regex_search('(loop[0-9])') is none )
-  with_items: "{{ ansible_facts.devices.keys() }}"
-
-# Discovery partitions without UUID and not a boot sector
-# I find partitions without uuid and that partition not start from 2048
-# Firt need for exclude root and another partition what using now
-# Last need for exclude boot partition
-- name: "Discovery partitions without UUID"
-  debug:
-    msg: "{{ item }}"
-  when: item.value.start != "2048" and
-        item.value.uuid is none 
-  with_items: "{{ diskWithPartitions | dict2items }}"

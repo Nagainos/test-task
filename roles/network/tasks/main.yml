@@ -1,2 +1,23 @@
 ---
 # tasks file for network
+- name: "Disable cloud-init"
+  become: true
+  ansible.builtin.systemd:
+    enabled: false
+    state: stopped
+    name: cloud-init
+
+- name: "Delete old netplan config"
+  become: true
+  ansible.builtin.file:
+    state: absent
+    path: "/etc/netplan/*"
+
+- name: "Configure netplan"
+  become: true
+  ansible.builtin.template:
+    src: "ifconfig.j2"
+    dest: "/etc/netplan/00-netplan-custom.yaml"
+    owner: root
+    group: root
+    mode: '0644'

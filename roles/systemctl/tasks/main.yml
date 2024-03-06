@@ -1,0 +1,8 @@
+---
+# tasks file for systemctl
+- name: "Disable ondemand systemd unit"
+  become: true
+  ansible.builtin.systemd:
+    enabled: false
+    state: stopped
+    name: ondemand
