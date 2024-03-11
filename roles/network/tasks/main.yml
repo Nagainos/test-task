@@ -29,3 +29,12 @@
   ignore_errors: "{{ ansible_check_mode }}"
   async: 45
   poll: 0
+
+- name: "Annonce"  
+  ansible.builtin.debug:
+    msg:
+      "Interface {{ ansible_facts.default_ipv4.interface }} changed.
+      His IP is: {{ ansible_facts.default_ipv4.address }},
+      Netmask: {{ ansible_facts.default_ipv4.netmask }},
+      Gateway: {{ ansible_facts.default_ipv4.gateway }},
+      MAC-Address: {{ ansible_facts.default_ipv4.macaddress }}"

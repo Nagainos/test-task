@@ -1,6 +1,5 @@
 ---
 # tasks file for dm-crypt
-# Install cryptsetup package
 - name: "Install cryptsetup and parted"
   become: true
   ansible.builtin.apt:

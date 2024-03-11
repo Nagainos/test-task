@@ -1,8 +1,28 @@
 ---
 - hosts: all
   gather_facts: yes
+  ignore_errors: true
+  post_tasks:
+    - name: "Get lscpu data"
+      ansible.builtin.shell:
+        cmd: "lscpu -J"
+      register: lscpu
+
+    - name: "Show lscpu data"
+      ansible.builtin.debug:
+        msg: 
+          "CPU Model: {{ lscpu.stdout | from_json | community.general.json_query(cpuModel) | join(', ') | string }},
+          CPUs: {{ lscpu.stdout | from_json | community.general.json_query(cpus) | join(', ') | string }}, 
+          Sockets: {{ lscpu.stdout | from_json | community.general.json_query(sockets) | join(', ') | string }},
+          Virtualization: {{ lscpu.stdout | from_json | community.general.json_query(virtualization) | join(', ') | string }} "
+      vars:
+      - cpuModel: "*[?contains(field,'Model name')].data"
+      - cpus: "*[?starts_with(field,'CPU(s):')].data"
+      - sockets: "*[?starts_with(field,'Socket(s):')].data"
+      - virtualization: "*[?starts_with(field,'Virtualization:')].data"
+      
   roles:
     - dm-crypt
     - grub
-    #- systemctl
+    - systemctl
     - network

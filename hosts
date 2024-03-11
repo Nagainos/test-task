@@ -1,0 +1,15 @@
+all:
+  children:
+    test:
+      hosts:
+        test-amzn:
+          become: yes
+          become_method: sudo
+          become_user: root
+          ansible_host: 18.193.123.158
+          ansible_user: ubuntu
+          ansible_ssh_private_key_file: ~/.ssh/achivelenkov.pem
+          diskForEncrypt:
+            - xvda14
+            - xvdb
+# vim:ft=ansible:
