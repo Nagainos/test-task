@@ -6,4 +6,4 @@ network:
       dhcp6: false
       match:
           macaddress: {{ ansible_facts.default_ipv4.macaddress }}
-      set-name: net0
+      set-name: {{ ifaceName }}

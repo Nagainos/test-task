@@ -33,7 +33,7 @@
 - name: "Annonce"  
   ansible.builtin.debug:
     msg:
-      "Interface {{ ansible_facts.default_ipv4.interface }} changed.
+      "Interface {{ ifaceName }} changed.
       His IP is: {{ ansible_facts.default_ipv4.address }},
       Netmask: {{ ansible_facts.default_ipv4.netmask }},
       Gateway: {{ ansible_facts.default_ipv4.gateway }},
