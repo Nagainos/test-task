@@ -1,10 +1,88 @@
 ---
 # tasks file for dm-crypt
 # Install cryptsetup package
-# - name: Install cryptsetup
-#   become: true
-#   ansible.builtin.apt:
-#     name: cryptsetup
-#     state: present
-#     update_cache: true
-#   tags: install
+- name: "Install cryptsetup and parted"
+  become: true
+  ansible.builtin.apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: true
+  with_items: 
+    - cryptsetup
+    - parted
+  tags: install
+
+- name: "Create directory for luks keys"
+  become: true
+  ansible.builtin.file:
+    dest: "{{ vaultDirectory }}"
+    state: directory
+  tags: install
+
+- name: "Create directory for luks keys"
+  become: true
+  ansible.builtin.file:
+    dest: "/mnt/{{ item }}"
+    state: directory
+  tags: install
+  with_items:
+    - "{{ diskForEncrypt }}"
+
+- name: "Create luks key"
+  become: true
+  community.general.filesize:
+    path: "{{ vaultDirectory }}/encrypt.key"
+    source: /dev/urandom
+    size: 4096 B
+    mode: u=r,go=
+    owner: root
+    group: root
+  tags: install
+
+- name: "Create LUKS Container"
+  become: true
+  community.crypto.luks_device:
+    device:       "/dev/{{ item }}"
+    name:         "crypt-{{ item }}"
+    state:        present
+    keyfile:      "{{ vaultDirectory }}/encrypt.key"
+  with_items:
+    - "{{ diskForEncrypt }}"
+
+- name: "Create crypttab"
+  become: true
+  community.general.crypttab:
+    backing_device: "/dev/{{ item }}"
+    name:           "crypt-{{ item }}" 
+    state:          present
+    password:       "{{ vaultDirectory }}/encrypt.key"
+  with_items:
+    - "{{ diskForEncrypt }}"
+
+- name: "Open LUKS Container"
+  become: true
+  community.crypto.luks_device:
+    device:       "/dev/{{ item }}"
+    name:         "crypt-{{ item }}"
+    state:        opened
+    keyfile:      "{{ vaultDirectory }}/encrypt.key"
+  with_items:
+    - "{{ diskForEncrypt }}"
+
+- name: Check Filesystems
+  become: true
+  community.general.filesystem:
+    fstype: ext4
+    dev:    "/dev/mapper/crypt-{{ item }}"
+  with_items:
+    - "{{ diskForEncrypt }}"
+
+- name: Check Mounts
+  become: true
+  ansible.posix.mount:
+    name:   "/mnt/{{ item }}"
+    src:    "/dev/mapper/crypt-{{ item }}"
+    fstype: ext4
+    state:  mounted
+  with_items:
+    - "{{ diskForEncrypt }}"

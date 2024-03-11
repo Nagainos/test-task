@@ -2,7 +2,7 @@
 - hosts: all
   gather_facts: yes
   roles:
-    # - dm-crypt
+    - dm-crypt
     - grub
     #- systemctl
     - network

@@ -21,3 +21,11 @@
     owner: root
     group: root
     mode: '0644'
+
+- name: "Apply new netplan config"
+  become: true
+  ansible.builtin.shell:
+    cmd: "netplan apply"
+  ignore_errors: "{{ ansible_check_mode }}"
+  async: 45
+  poll: 0

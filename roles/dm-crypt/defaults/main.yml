@@ -1,2 +1,3 @@
 ---
 # defaults file for dm-crypt
+vaultDirectory: "/etc/vault"

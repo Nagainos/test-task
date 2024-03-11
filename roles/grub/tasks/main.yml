@@ -10,4 +10,5 @@
     line: '\1 intel_idle.max_cstate=0"'
 
 - name: "Rebuild grub"
+  become: true
   ansible.builtin.shell: update-grub2
